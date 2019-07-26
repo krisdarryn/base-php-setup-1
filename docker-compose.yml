@@ -1,0 +1,36 @@
+version: '3'
+
+services:
+    php-service:
+        build:  ./php
+        volumes:
+            - ./php/app:/var/www/html
+        ports:
+            - 5000:80
+        links:
+            - db-service
+        depends_on:
+            - db-service
+            
+    db-service:
+        image: mysql:5.7
+        volumes:
+            - ./docker-entrypoint-initdb.d:/docker-entrypoint-initdb.d
+        command: 
+            --default-authentication-plugin=mysql_native_password
+        restart: 
+            "always"
+        environment:
+            - MYSQL_ROOT_PASSWORD=rootpassword
+            
+    phpmyadmin:
+        image: phpmyadmin/phpmyadmin
+        ports:
+            - 5001:80
+        restart: 
+            "always"
+        depends_on:
+            - db-service
+        environment:
+            - PMA_HOST=db-service
+            - MYSQL_ROOT_PASSWORD=rootpassword
